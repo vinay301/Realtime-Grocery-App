@@ -1,0 +1,74 @@
+[
+    {
+    "_id": {
+      "$oid": "5eee651f739f8c674fd736ee"
+    },
+    "name": "Amul Full Cream Milk",
+    "image": "menu.jpg",
+    "price": "33",
+    "quantity": "250ml"
+  },
+  {
+    "_id": {
+      "$oid": "5eee6671a27a66807cf2bea3"
+    },
+    "name": "Aashirwad Aata",
+    "image": "menu.jpg",
+    "price": "300",
+    "quantity": "10 kg"
+  },
+  {
+    "_id": {
+      "$oid": "5eee6692a27a66807cf2bea4"
+    },
+    "name": "Chocolates",
+    "image": "menu.jpg",
+    "price": "20",
+    "quantity": "1 pcs"
+  },
+  {
+    "_id": {
+      "$oid": "5eee66a5a27a66807cf2bea5"
+    },
+    "name": "Lentils",
+    "image": "menu.jpg",
+    "price": "90",
+    "quantity": "1 kg"
+  },
+  {
+    "_id": {
+      "$oid": "5eee66c4a27a66807cf2bea6"
+    },
+    "name": "Real Juice",
+    "image": "menu.jpg",
+    "price": "350",
+    "quantity": "1 litre"
+  },
+  {
+    "_id": {
+      "$oid": "5eee66cfa27a66807cf2bea7"
+    },
+    "name": "Cheese",
+    "image": "menu.jpg",
+    "price": "80",
+    "quantity": "250 gm"
+  },
+  {
+    "_id": {
+      "$oid": "5eee66eea27a66807cf2bea8"
+    },
+    "name": "Dove Soap",
+    "image": "menu.jpg",
+    "price": "60",
+    "quantity": "1 pcs"
+  },
+  { 
+    "_id": {
+      "$oid": "5eee6717a27a66807cf2bea9"
+    },
+    "name": "Wow Onion Shampoo",
+    "image": "menu.jpg",
+    "price": "500",
+    "quantity": "500ml"
+  }
+]

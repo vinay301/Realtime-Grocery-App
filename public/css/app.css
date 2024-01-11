@@ -1,0 +1,80 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Lato", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #232323;
+}
+
+.nav-logo {
+  width: 150px;
+  height: auto;
+}
+
+nav li:last-child a {
+  background: #57C84D;
+}
+nav li:last-child a:hover {
+  background-color: #2EB62C;
+  color: #FFF;
+}
+
+nav li a {
+  transition: all 0.3s ease-in-out;
+}
+nav li a:hover {
+  color: #57C84D;
+}
+
+section.hero {
+  background-color: #F8F8F8;
+}
+
+.size {
+  background: #F8F8F8;
+}
+
+.addToCart {
+  border: 2px solid #57C84D;
+  color: #57C84D;
+  transition: all 0.3s ease-in-out;
+}
+.addToCart:hover {
+  background-color: #57C84D;
+  border-color: #FFF;
+  color: #FFF;
+}
+
+.orderBtn, .backBtn, .finalOrder, .loginBtn {
+  border: 2px solid #FFF;
+  color: #FFF;
+  background: #57C84D !important;
+  transition: all 0.3s ease-in-out;
+}
+.orderBtn:hover, .backBtn:hover, .finalOrder:hover, .loginBtn:hover {
+  background-color: #FFF !important;
+  border-color: #57C84D;
+  color: #57C84D;
+}
+
+section.cart {
+  background: #F8F8F8;
+}
+section.cart .amount {
+  color: #57C84D;
+}
+
+section.login {
+  background: #F8F8F8;
+}
+section.login a {
+  color: #57C84D;
+}
+section.login a:hover {
+  text-decoration: none;
+  color: #2EB62C;
+}
