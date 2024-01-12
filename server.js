@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDbStore = require('connect-mongo')(session);
 const flash = require('express-flash');
-
+const passport = require('passport');
 
 const connectDB = require('./app/database/connection');
 
@@ -19,6 +19,7 @@ const PORT = process.env.PORT || 8080
 //Assets
 app.use(express.static('public'));
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 //MongoDb Connection
 //connectDB();
@@ -30,6 +31,7 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
         process.exit(1);
     }
 });
+
 
 
 //Session Store
@@ -47,12 +49,20 @@ app.use(session({
     cookie: {maxAge: 1000 * 60 * 60 * 24} //24hrs
 }))
 
+ //Passport Config
+ const passportInit = require('./app/config/passport') 
+ passportInit(passport)
+ app.use(passport.initialize())
+ app.use(passport.session())
+
  app.use(flash())
+
 
 
 //Global Middleware
 app.use((req,res,next)=>{
     res.locals.session = req.session
+    res.locals.user = req.user || null;
     next()
 })
 
