@@ -1,7 +1,8 @@
 import axios from 'axios'
 import moment from 'moment'
+const Swal = require('sweetalert2')
 
-function initAdmin() {
+function initAdmin(socket) {
     const orderTableBody = document.querySelector('#orderTableBody')
     let orders = []
     let markup ;
@@ -81,6 +82,31 @@ function initAdmin() {
         `
         }).join('')
     }
+
+    //Socket
+    
+    socket.on('orderPlaced', (order)=>{
+        Swal.fire({
+            title: "New Order Added",
+            showClass: {
+              popup: `
+                animate__animated
+                animate__fadeInUp
+                animate__faster
+              `
+            },
+            hideClass: {
+              popup: `
+                animate__animated
+                animate__fadeOutDown
+                animate__faster
+              `
+            }
+          });
+          orders.unshift(order)
+          orderTableBody.innerHTML = ''
+          orderTableBody.innerHTML = generateMarkup(orders)
+    })
 }
 export { initAdmin };
 

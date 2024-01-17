@@ -18,12 +18,34 @@ function orderController(){
             address : address
            })
 
-           order.save().then(result => {
-                req.flash('success', 'Order Placed Successfully')
-                
+           order.save()
+           .then(result => {
+            return Order.populate(result, { path: 'customerId' });
+            })
+            .then(placedOrder => {
+                req.flash('success', 'Order Placed Successfully');
                 delete req.session.cart;
+        
+                // Emit Event
+                const eventEmitter = req.app.get('eventEmitter');
+                eventEmitter.emit('orderPlaced', placedOrder);
+        
                 return res.redirect('/customer/orders');
-           }).catch(err => {
+            })
+        //    .then(result => {
+        //         Order.populate(result,{ path: 'customerId' }, (err, placedOrder)=>{
+        //             req.flash('success', 'Order Placed Successfully')
+                
+        //             delete req.session.cart;
+        //             //Emit Event
+        //             const eventEmitter = req.app.get('eventEmitter')
+        //             eventEmitter.emit('orderPlaced',placedOrder);
+    
+        //             return res.redirect('/customer/orders');
+        //         })
+              
+        //    })
+           .catch(err => {
                 req.flash('error','Something went wrong!');
                 return res.redirect('/cart');
            })
@@ -35,6 +57,16 @@ function orderController(){
             res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate,max-stale=0, post-check=0, pre-check=0')
             res.render('customers/orders',{ orders: orders, moment : moment })
             //console.log(orders);
+        },
+        async show(req,res){
+            const order = await Order.findById(req.params.id)
+            //Authorized user
+            if(req.user._id.toString() === order.customerId.toString())
+            {
+                return res.render('customers/singleOrder', { order: order })
+            }
+                return res.redirect('/');
+            
         }
     }
 }

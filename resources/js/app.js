@@ -2,7 +2,9 @@
 // import axios from 'axios';
 const axios = require('axios');
 const Swal = require('sweetalert2')
+const moment = require('moment');
 import { initAdmin } from './admin';
+
 
 let addToCart = document.querySelectorAll('.addToCart')
 let cartCounter = document.querySelector('#cartCounter');
@@ -72,7 +74,81 @@ if(alertMsg)
 }
 
 // initAdmin()
+
+
+//Change order status
+let statuses = document.querySelectorAll('.status-line')
+
+let hiddenInput = document.querySelector('#hiddenInput')
+let order =  hiddenInput ? hiddenInput.value : null
+order = JSON.parse(order)
+let time = document.createElement('small')
+
+function updateStatus(order){
+  statuses.forEach((status) => {
+    status.classList.remove('step-completed')
+    status.classList.remove('current-stage')
+  })
+  let stepCompleted  =  true;
+  statuses.forEach((status)=>{
+    let dataProp = status.dataset.status
+    if(stepCompleted)
+    {
+      status.classList.add('step-completed')
+    }
+    if(dataProp === order.status){
+      stepCompleted = false;
+      time.innerText = moment(order.updatedAt).format('hh:mm A')
+      status.appendChild(time);
+      if(status.nextElementSibling)
+      {
+        status.nextElementSibling.classList.add('current-stage')
+      }
+     
+    }
+  })
+}
+
+updateStatus(order)
+
+//Socket
+let socket = io()
+//Join
+if(order)
+{
+  socket.emit('join', `order_${order._id}`);
+}
+//Admin socket --> order displayed realtime
 let adminAreaPath = window.location.pathname
 if(adminAreaPath.includes('admin')){
-  initAdmin()
+  initAdmin(socket)
+  socket.emit('join','adminRoom')
 }
+
+
+socket.on('orderUpdated', (data)=> {
+  const updatedOrder = { ...order }
+  //Update UI
+  updatedOrder.updatedAt = moment().format()
+  updatedOrder.status = data.status
+  updateStatus(updatedOrder)
+  Swal.fire({
+    title: "Order Updated",
+    showClass: {
+      popup: `
+        animate__animated
+        animate__fadeInUp
+        animate__faster
+      `
+    },
+    hideClass: {
+      popup: `
+        animate__animated
+        animate__fadeOutDown
+        animate__faster
+      `
+    }
+  });
+  //console.log(data)
+})
+

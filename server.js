@@ -9,6 +9,8 @@ const session = require('express-session');
 const MongoDbStore = require('connect-mongo')(session);
 const flash = require('express-flash');
 const passport = require('passport');
+const Emitter = require('events')
+
 
 const connectDB = require('./app/database/connection');
 
@@ -40,6 +42,10 @@ let mongoStore = new MongoDbStore({
     collection : 'sessions'
 })
 
+//Event Emitter
+const eventEmitter = new Emitter()
+app.set('eventEmitter',eventEmitter)
+
 //Session Configuration
 app.use(session({
     secret: process.env.COOKIE_SECRET,
@@ -50,7 +56,8 @@ app.use(session({
 }))
 
  //Passport Config
- const passportInit = require('./app/config/passport') 
+ const passportInit = require('./app/config/passport'); 
+const { setServers } = require('dns');
  passportInit(passport)
  app.use(passport.initialize())
  app.use(passport.session())
@@ -74,7 +81,35 @@ app.set('view engine','ejs');
 require('./routes/web')(app)
 
 
-
-app.listen(PORT, ()=> {
+const server = app.listen(PORT, ()=> {
     console.log(`Server is running on port ${PORT}`);
 })
+
+
+//Socket Connection
+
+const io =  require('socket.io')(server)
+io.on('connection',(socket) => {
+   
+    //Join Private Room
+    //console.log(socket.id)
+    socket.on('join',(orderId) => {
+       // console.log(orderId)
+        socket.join(orderId)
+    })
+})
+
+
+eventEmitter.on('orderUpdated', (data)=>{
+    io.to(`order_${data.id}`).emit('orderUpdated',data)
+    //console.log(data);
+})
+
+eventEmitter.on('orderPlaced', (data)=>{
+    io.to('adminRoom').emit('orderPlaced',data)
+    //console.log(data);
+})
+
+
+
+
