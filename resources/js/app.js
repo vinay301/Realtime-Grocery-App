@@ -4,6 +4,7 @@ const axios = require('axios');
 const Swal = require('sweetalert2')
 const moment = require('moment');
 import { initAdmin } from './admin';
+import { initStripe } from './stripe';
 
 
 let addToCart = document.querySelectorAll('.addToCart')
@@ -110,6 +111,12 @@ function updateStatus(order){
 }
 
 updateStatus(order)
+
+
+initStripe()
+
+
+
 
 //Socket
 let socket = io()

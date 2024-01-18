@@ -1,14 +1,15 @@
 const Order = require('../../../models/order');
 const moment = require('moment');
+const stripe = require('stripe')(process.env.Stripe_Private_Key)
+
 function orderController(){
     return {
         storeOrder(req,res){
            // Validate Request
-           const { phone, address } = req.body
+           const { phone, address, stripeToken, paymentType } = req.body
            if(!phone || !address)
            {
-                req.flash('error','All fields are required');
-                return res.redirect('/cart')
+                return res.status(422).json({ message: 'All Fields are required'});
            }
 
            const order = new Order({
@@ -23,31 +24,64 @@ function orderController(){
             return Order.populate(result, { path: 'customerId' });
             })
             .then(placedOrder => {
-                req.flash('success', 'Order Placed Successfully');
-                delete req.session.cart;
-        
-                // Emit Event
-                const eventEmitter = req.app.get('eventEmitter');
-                eventEmitter.emit('orderPlaced', placedOrder);
-        
-                return res.redirect('/customer/orders');
-            })
-        //    .then(result => {
-        //         Order.populate(result,{ path: 'customerId' }, (err, placedOrder)=>{
-        //             req.flash('success', 'Order Placed Successfully')
+                //req.flash('success', 'Order Placed Successfully');
                 
-        //             delete req.session.cart;
-        //             //Emit Event
-        //             const eventEmitter = req.app.get('eventEmitter')
-        //             eventEmitter.emit('orderPlaced',placedOrder);
-    
-        //             return res.redirect('/customer/orders');
-        //         })
-              
-        //    })
+               
+                
+                //Stripe Payment
+                if(paymentType === 'card')
+                {
+                    // Convert the token into a Source
+                    stripe.sources.create(
+                    {
+                        type: 'card',
+                        token: stripeToken
+                    },
+                    function(err, source) {
+                        if (err) {
+                            // Handle the error
+                            console.error('Stripe source creation failed:', err);
+                            delete req.session.cart;
+                            return res.status(500).json({ message: 'Order Placed But Payment Failed. Please contact support for assistance.' });
+                        }
+            
+                        // Now, use the created source for the payment
+                        stripe.paymentIntents.create({
+                            amount: req.session.cart.totalPrice * 100,
+                            source: source.id,
+                            currency: 'inr',
+                            description: `Grocery order: ${placedOrder._id}`
+                        }).then(() => {
+                            placedOrder.paymentStatus = true;
+                            placedOrder.paymentType = paymentType
+                            placedOrder.save().then((ord) => {
+                                // Emit Event
+                                const eventEmitter = req.app.get('eventEmitter');
+                                eventEmitter.emit('orderPlaced', ord);
+                                delete req.session.cart;
+                                return res.json({ message: 'Payment Successful, Order Placed Successfully' });
+                            }).catch((err) => {
+                                console.log(err);
+                            });
+                        }).catch(() => {
+                            delete req.session.cart;
+                            return res.json({ message: 'Order Placed But Payment Failed, You can pay at delivery time' });
+                        });
+                    }
+                );
+                }
+                else{
+                    delete req.session.cart;
+                    return res.json({ message: 'Order Placed Successfully' });
+                }
+                
+                //return res.redirect('/customer/orders');
+            })
+      
            .catch(err => {
-                req.flash('error','Something went wrong!');
-                return res.redirect('/cart');
+            return res.status(500).json({ message: 'Something Went Wrong' })
+                // req.flash('error','Something went wrong!');
+                // return res.redirect('/cart');
            })
         },
         async index(req,res)
